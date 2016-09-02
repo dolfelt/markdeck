@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  position: relative;
+  color: #333;
+  height: 100vh;
+  font-family: Arial, Helvetica, Helvetica Neue;
+  overflow-y: hidden;
+}
+
+@import 'layout';
+@import 'editor';
