@@ -77,7 +77,17 @@ export default function createMenu({
               (fnames) => {
                 if (!fnames) return;
 
-                const focusedWindow = win || createWindow({ store });
+                let focusedWindow;
+                if (!win) {
+                  focusedWindow = createWindow({ store });
+                } else {
+                  const editor = getEditor(win.uuid)(win.getState());
+                  if (editor.code) {
+                    focusedWindow = createWindow({ store });
+                  } else {
+                    focusedWindow = win;
+                  }
+                }
 
                 focusedWindow.dispatch(loadFile(
                   focusedWindow.uuid,

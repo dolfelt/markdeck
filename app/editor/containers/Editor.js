@@ -13,22 +13,41 @@ import { bindActionCreators } from 'redux';
 import { updateCode } from '../actions';
 
 // Selectors
-import { getCode } from '../selectors';
+import { getEditor } from '../selectors';
 
 const UUID = remote.getCurrentWindow().uuid;
 
 class Editor extends Component {
   static propTypes = {
     code: PropTypes.string,
+    file: PropTypes.string,
+    saved: PropTypes.bool,
     updateCode: PropTypes.func,
   }
 
   constructor(props) {
     super(props);
 
+    remote.getCurrentWindow().updateTitle();
+
     this.state = {
       code: this.props.code,
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.file !== nextProps.file) {
+      this.setState({
+        code: nextProps.code,
+      });
+    }
+
+    if (
+      this.props.file !== nextProps.file ||
+      this.props.saved !== nextProps.saved
+    ) {
+      remote.getCurrentWindow().updateTitle();
+    }
   }
 
   onCodeChange = (code) => {
@@ -60,9 +79,14 @@ class Editor extends Component {
 }
 
 export default connect(
-  state => ({
-    code: getCode(UUID)(state),
-  }),
+  state => {
+    const editor = getEditor(UUID)(state);
+    return {
+      file: editor.file,
+      code: editor.code,
+      saved: editor.saved,
+    };
+  },
   dispatch => bindActionCreators({
     updateCode,
   }, dispatch)
