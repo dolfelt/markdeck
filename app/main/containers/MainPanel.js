@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -9,9 +8,6 @@ import Editor from '../../editor/containers/Editor';
 class MainPanel extends Component {
   componentDidMount() {
     this.webview = this.div.childNodes[0];
-    this.webview.addEventListener('dom-ready', () => {
-      this.webview.openDevTools();
-    });
     global.webview = this.webview;
   }
 

@@ -23,7 +23,6 @@ export default function createWindow({ store }) {
   });
 
   if (process.env.NODE_ENV === 'development') {
-    mainWindow.openDevTools();
     mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props;
 

@@ -20,6 +20,12 @@ ipcRenderer.on('redux-action', (event, payload) => {
   }
 });
 
+ipcRenderer.on('toggle-webview-devtools', () => {
+  if (global.webview) {
+    global.webview.openDevTools();
+  }
+});
+
 render(
   <Provider store={store}>
     <Router history={history} routes={routes} />
