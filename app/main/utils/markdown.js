@@ -63,11 +63,11 @@ export default class Markdown {
 
   render(code) {
     this.rulers = [];
-    return [
+    return this.postRender([
       slideTagOpen(1),
       this.markdown.render(code),
       slideTagClose(this.rulers.length + 1)
-    ].join('');
+    ].join(''));
   }
 
   createMarkdown(opts, plugins = []) {
@@ -98,11 +98,11 @@ export default class Markdown {
         },
         image: (...args) => {
           this.renderers.image.apply(this, args);
-          defaultRenderers.image.apply(this, args);
+          return defaultRenderers.image.apply(this, args);
         },
         html_block: (...args) => {
           this.renderers.html_block.apply(this, args);
-          defaultRenderers.html_block.apply(this, args);
+          return defaultRenderers.html_block.apply(this, args);
         },
       }
     );
@@ -154,5 +154,91 @@ export default class Markdown {
         });
       }
     },
+  }
+
+  parents(node, cls) {
+    const elm = node.parentNode;
+    if (elm.classList.contains(cls)) {
+      return elm;
+    }
+    return this.parents(elm, cls);
+  }
+
+  postRender(htmlString) {
+    const content = document.createElement('div');
+    content.innerHTML = htmlString;
+
+    content.querySelectorAll('p > img[alt~="bg"]').forEach((elem) => {
+      const parent = elem.parentNode;
+      const slide = this.parents(elem, 'slide_wrapper');
+      const bg = slide.querySelector('.slide_bg');
+      const src = elem.src;
+      const alt = elem.getAttribute('alt');
+      const elmBg = document.createElement('div');
+      elmBg.classList.add('slide_bg_img');
+      elmBg.style.backgroundImage = `url(${src})`;
+      elmBg.setAttribute('data-alt', alt);
+
+      alt.split(/\s+/).forEach((opt) => {
+        const m = opt.match(/^(\d+(?:\.\d+)?)%$/);
+        if (m) {
+          elmBg.style.backgroundSize = `${m[1]}%`;
+        }
+      });
+
+      bg.appendChild(elmBg);
+      parent.removeChild(elem);
+
+      if (
+        parent.querySelectorAll(':scope > :not(br)').length === 0 &&
+        /^\s*$/.test(parent.textContent)
+      ) {
+        parent.parentNode.removeChild(parent);
+      }
+    });
+
+    // mdElm.find('img[alt*="%"]').each ->
+    //   for opt in $(@).attr('alt').split(/\s+/)
+    //     if m = opt.match(/^(\d+(?:\.\d+)?)%$/)
+    //       $(@).css('zoom', parseFloat(m[1]) / 100.0)
+
+    content.querySelectorAll(':scope > .slide_wrapper').forEach((wrapper) => {
+      // Page directives for themes
+      const page = parseInt(wrapper.id, 10);
+      const settings = this.settings.getAt(page, false);
+      Object.keys(settings).forEach((prop) => {
+        const val = settings[prop];
+        wrapper.setAttribute(`data-${prop}`, val);
+        if (prop === 'footer') {
+          const footer = wrapper.querySelector('footer.slide_footer:last');
+          if (footer) {
+            footer.textContent = val;
+          }
+        }
+      });
+
+      // Detect "only-***" elements
+      const innerIgnore = [
+        'base', 'link', 'meta', 'noscript', 'script',
+        'style', 'template', 'title'].map(ignore => `:not(${ignore})`);
+      const inner = wrapper.querySelector('.slide > .slide_inner');
+      const innerContents = inner.querySelectorAll(
+        `:scope > ${innerIgnore.join('')}`
+      );
+
+      const headsLength = inner.querySelectorAll(':scope > h1,h2,h3,h4,h5,h6').length;
+      wrapper.classList.toggle(
+        'only-headings',
+        headsLength > 0 && innerContents.length === headsLength
+      );
+
+      const quotesLength = inner.querySelectorAll(':scope > blockquote').length;
+      wrapper.classList.toggle(
+        'only-blockquotes',
+        quotesLength > 0 && innerContents.length === quotesLength
+      );
+    });
+
+    return content.innerHTML;
   }
 }
