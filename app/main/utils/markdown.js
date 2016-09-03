@@ -197,10 +197,15 @@ export default class Markdown {
       }
     });
 
-    // mdElm.find('img[alt*="%"]').each ->
-    //   for opt in $(@).attr('alt').split(/\s+/)
-    //     if m = opt.match(/^(\d+(?:\.\d+)?)%$/)
-    //       $(@).css('zoom', parseFloat(m[1]) / 100.0)
+    content.querySelectorAll('img[alt*="%"]').forEach((img) => {
+      const imgTag = img;
+      imgTag.getAttribute('alt').split(/\s+/).forEach((opt) => {
+        const m = opt.match(/^(\d+(?:\.\d+)?)%$/);
+        if (m) {
+          imgTag.style.zoom = parseFloat(m[1]) / 100.0;
+        }
+      });
+    });
 
     content.querySelectorAll(':scope > .slide_wrapper').forEach((wrapper) => {
       // Page directives for themes
@@ -208,12 +213,13 @@ export default class Markdown {
       const settings = this.settings.getAt(page, false);
       Object.keys(settings).forEach((prop) => {
         const val = settings[prop];
-        wrapper.setAttribute(`data-${prop}`, val);
         if (prop === 'footer') {
-          const footer = wrapper.querySelector('footer.slide_footer:last');
-          if (footer) {
-            footer.textContent = val;
+          const footers = wrapper.querySelectorAll('footer.slide_footer');
+          if (footers.length) {
+            footers[footers.length - 1].innerHTML = val;
           }
+        } else {
+          wrapper.setAttribute(`data-${prop}`, val);
         }
       });
 
