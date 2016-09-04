@@ -5,13 +5,14 @@ import postcssMixins from 'postcss-mixins';
 import postcssPartialImport from 'postcss-partial-import';
 
 import { setStyle } from './utils';
-import { exists, loadFromFile } from '../main/utils/file';
+import { exists, loadFromFile, getAppPath } from '../main/utils/file';
 
 const getProcessor = () => {
   const processor = postcss([
     postcssPartialImport({
       dirs: [
-        path.resolve('themes'),
+        path.join(getAppPath(), 'themes'),
+        path.join(getAppPath(), 'node_modules/highlight.js/styles'),
       ]
     }),
     postcssMixins,
@@ -32,10 +33,10 @@ export const parseTheme = (css, file) =>
 export const renderTheme = (key, dir) => {
   let file = path.join(dir, `${key}.css`);
   if (!exists(file)) {
-    file = path.resolve(path.join('themes', `${key}.css`));
+    file = path.join(getAppPath(), 'themes', `${key}.css`);
   }
   if (!exists(file)) {
-    file = path.resolve('themes/default.css');
+    file = path.join(getAppPath(), 'themes/default.css');
   }
   if (!exists(file)) {
     throw new Error(`Cannot find ${file}`);

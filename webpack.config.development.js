@@ -31,14 +31,6 @@ export default merge(baseConfig, {
         test: /\.css$/,
         loaders: ['style', 'css?sourceMap', 'postcss?sourceMap']
       },
-
-      // {
-      //   test: /^((?!\.global).)*\.css$/,
-      //   loaders: [
-      //     'style-loader',
-      //     'css-loader?modules&sourceMap&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
-      //   ]
-      // },
     ]
   },
 
@@ -46,8 +38,9 @@ export default merge(baseConfig, {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development')
-    })
+      'process.env.NODE_ENV': JSON.stringify('development'),
+      'process.appPath': JSON.stringify(__dirname),
+    }),
   ],
 
   target: 'electron-renderer'

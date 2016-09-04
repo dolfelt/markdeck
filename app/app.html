@@ -8,7 +8,7 @@
       if (!process.env.HOT) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = '../dist/styles/app.css';
+        link.href = '../style.css';
         document.write(link.outerHTML);
       }
     </script>
@@ -19,7 +19,7 @@
       {
         const script = document.createElement('script');
         const port = process.env.PORT || 3000;
-        script.src = (process.env.HOT) ? `http://localhost:${port}/dist/bundle.js` : '../dist/bundle.js';
+        script.src = (process.env.HOT) ? `http://localhost:${port}/dist/bundle.js` : '../bundle.js';
         document.write(script.outerHTML);
       }
     </script>

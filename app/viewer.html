@@ -10,7 +10,7 @@
       {
         const script = document.createElement('script');
         const port = process.env.PORT || 3000;
-        script.src = (process.env.HOT) ? `http://localhost:${port}/dist/viewer.js` : '../dist/viewer.js';
+        script.src = (process.env.HOT) ? `http://localhost:${port}/dist/viewer.js` : '../viewer.js';
         document.write(script.outerHTML);
       }
     </script>

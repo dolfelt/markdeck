@@ -1,6 +1,7 @@
 import { BrowserWindow, Menu, dialog } from 'electron';
 import path from 'path';
 
+import { getAppPath } from './utils/file';
 import guid from './utils/guid';
 import createMenu from './createMenu';
 
@@ -8,7 +9,7 @@ import { getEditor } from '../editor/selectors';
 
 const getEditorState = (win) => getEditor(win.uuid)(win.getState());
 
-const mainWindowPath = path.join(__dirname, '../../app/app.html');
+const appPath = getAppPath();
 
 export default function createWindow({ store }) {
   const mainWindow = new BrowserWindow({
@@ -17,7 +18,7 @@ export default function createWindow({ store }) {
     height: 728
   });
 
-  mainWindow.loadURL(`file://${mainWindowPath}`);
+  mainWindow.loadURL(`file://${appPath}/app/app.html`);
 
   mainWindow.uuid = guid();
 

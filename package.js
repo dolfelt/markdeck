@@ -21,18 +21,9 @@ const shouldBuildAll = argv.all || false;
 
 
 const DEFAULT_OPTS = {
-  dir: './',
+  dir: './dist',
   name: appName,
   asar: shouldUseAsar,
-  ignore: [
-    '^/test($|/)',
-    '^/release($|/)',
-    '^/main.development.js'
-  ].concat(devDeps.map(name => `/node_modules/${name}($|/)`))
-  .concat(
-    deps.filter(name => !electronCfg.externals.includes(name))
-      .map(name => `/node_modules/${name}($|/)`)
-  )
 };
 
 const icon = argv.icon || argv.i || 'app/app';
@@ -73,6 +64,7 @@ async function startPack() {
   console.log('start pack...');
 
   try {
+    const dist = await del('dist');
     await build(electronCfg);
     await build(cfg);
     const paths = await del('release');

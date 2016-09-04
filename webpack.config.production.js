@@ -1,41 +1,66 @@
 import webpack from 'webpack';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import merge from 'webpack-merge';
+import { execSync } from 'child_process';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import baseConfig from './webpack.config.base';
+
+// Gather production dependencies to copy to `dist`
+const deps = execSync('npm list --prod --parseable')
+  .toString()
+  .split(/\n/)
+  .map(line => line.replace(`${__dirname}/`, ''))
+  .filter(line => !!line && (line.match(/\//g) || []).length === 1);
+
+const plugins = [
+  new CopyWebpackPlugin([
+    // Main Dependencies
+    { from: 'main.js' },
+    { from: 'app/app.html', to: 'app/app.html' },
+    { from: 'app/viewer.html', to: 'app/viewer.html' },
+    // Theme Resources
+    { from: 'themes', to: 'themes' },
+    { from: 'node_modules/highlight.js/styles', to: 'themes/highlight-js' },
+    // Information
+    { from: 'package.json' },
+  ].concat(
+    // Add Additional Module Resources
+    deps.map(line => ({ from: line, to: line }))
+  ))
+];
 
 const config = merge(baseConfig, {
   devtool: 'cheap-module-source-map',
 
-  entry: './app/index',
+  entry: {
+    bundle: './app/index',
+    viewer: './app/viewer',
+  },
 
   output: {
-    publicPath: '../dist/'
+    publicPath: '../dist/',
   },
 
   module: {
     loaders: [
       {
-        test: /\.global\.css$/,
+        test: /\.css$/,
         loader: ExtractTextPlugin.extract(
-          'style-loader',
-          'css-loader'
+          'style',
+          [
+            'css',
+            'postcss',
+          ]
         )
       },
-
-      {
-        test: /^((?!\.global).)*\.css$/,
-        loader: ExtractTextPlugin.extract(
-          'style-loader',
-          'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
-        )
-      }
-    ]
+    ],
   },
 
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.appPath': JSON.stringify(__dirname),
     }),
     new webpack.optimize.UglifyJsPlugin({
       compressor: {
@@ -43,7 +68,8 @@ const config = merge(baseConfig, {
         warnings: false
       }
     }),
-    new ExtractTextPlugin('style.css', { allChunks: true })
+    new ExtractTextPlugin('style.css', { allChunks: true }),
+    ...plugins,
   ],
 
   target: 'electron-renderer'

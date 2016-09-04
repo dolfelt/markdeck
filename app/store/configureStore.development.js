@@ -9,13 +9,6 @@ import rootReducer from './reducers';
 import forwardToMain from './middleware/forwardToMain';
 import forwardToRenderer from './middleware/forwardToRenderer';
 
-import * as editorActions from '../editor/actions';
-
-const actionCreators = {
-  ...editorActions,
-  push,
-};
-
 const logger = createLogger({
   level: 'info',
   collapsed: true,
