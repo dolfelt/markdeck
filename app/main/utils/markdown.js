@@ -9,31 +9,32 @@ import { exists } from './file';
 
 import Settings from './settings';
 
-const MARKDOWN_OPTIONS = {
-  html: true,
-  xhtmlOut: true,
-  breaks: true,
-  linkify: true,
-  highlight: getHighligher,
-};
-
-const getHighligher = (code, lang) => {
+const getHighlighter = (code, lang) => {
   if (lang) {
     if (lang === 'text' || lang === 'plain') {
       return '';
     } else if (HighlightJs.getLanguage(lang)) {
       try {
         return HighlightJs.highlight(lang, code).value;
-      } finally { /* nothing */ }
+      } catch (e) { /* nothing */ }
     }
   }
   return HighlightJs.highlightAuto(code).value;
+};
+
+const MARKDOWN_OPTIONS = {
+  html: true,
+  xhtmlOut: true,
+  breaks: true,
+  linkify: true,
+  highlight: getHighlighter,
 };
 
 const slideTagOpen = (page) =>
   `<div class="slide_wrapper" id="${page}">
   <div class="slide"><div class="slide_bg"></div>
   <div class="slide_inner">`;
+
 const slideTagClose = (page) =>
   `</div><footer class="slide_footer"></footer>
   <span class="slide_page" data-page="${page}">${page}</span>
