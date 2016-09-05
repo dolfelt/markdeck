@@ -65,7 +65,7 @@ class Editor extends Component {
         onChange={this.onCodeChange}
         options={{
           mode: 'gfm',
-          theme: 'remarp',
+          theme: 'markdeck',
           lineWrapping: true,
           lineNumbers: false,
           dragDrop: false,

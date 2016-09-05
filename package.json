@@ -1,6 +1,7 @@
 {
-  "name": "remarp",
-  "version": "0.0.1",
+  "name": "markdeck",
+  "productName": "Markdeck",
+  "version": "0.0.2",
   "description": "Presentation software based on React, Markdown, PostCSS for rapid presentation development",
   "main": "main.js",
   "scripts": {

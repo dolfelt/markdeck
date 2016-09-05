@@ -3,7 +3,7 @@
 .ReactCodeMirror {
   height: 100%;
 }
-.cm-s-remarp {
+.cm-s-markdeck {
   @extend .cm-s-base16-light;
 
   &.CodeMirror {

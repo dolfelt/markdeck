@@ -218,7 +218,7 @@ export default function createMenu({
   if (process.platform === 'darwin') {
     template = [
       {
-        label: 'Remarp',
+        label: 'Markdeck',
         submenu: [{
           label: 'About',
           selector: 'orderFrontStandardAboutPanel:'
