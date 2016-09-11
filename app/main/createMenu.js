@@ -1,45 +1,6 @@
-import { app, shell, Menu, dialog } from 'electron';
+import { app, shell, Menu } from 'electron';
 
-import createWindow from './createWindow';
-import { loadFile, saveFile } from '../editor/actions';
-import { getEditor } from '../editor/selectors';
-
-const onSaveFile = (focusedWindow, saveAs = false) => {
-  const uuid = focusedWindow.uuid;
-  const editor = getEditor(uuid)(focusedWindow.getState()) || {};
-
-  const doSave = (file) => focusedWindow.dispatch(saveFile(
-    focusedWindow.uuid,
-    file,
-    editor.code || ''
-  ));
-
-  if (editor.file && !saveAs) {
-    doSave(editor.file);
-  } else {
-    doSaveAs(focusedWindow)
-      .then((filename) => doSave(filename));
-  }
-};
-
-const doSaveAs = (focusedWindow) =>
-  new Promise((resolve, reject) => {
-    dialog.showSaveDialog(
-      focusedWindow,
-      {
-        title: 'Save as...',
-        filters: [{ name: 'Markdown file', extensions: ['md'] }],
-      },
-      (filename) => {
-        if (filename) {
-          resolve(filename);
-        } else {
-          reject();
-        }
-      }
-    );
-  });
-
+import Window from './Window';
 
 export default function createMenu({
   store,
@@ -55,72 +16,38 @@ export default function createMenu({
         {
           label: '&New File',
           accelerator: 'CmdOrCtrl+N',
-          click: () => {
-            createWindow({ store });
-          }
+          click: () => new Window({ store }),
         },
         { type: 'separator' },
         {
           label: '&Open',
           accelerator: 'CmdOrCtrl+O',
-          click: (item, win) => {
-            const args = [
-              {
-                title: 'Open',
-                filters: [
-                  { name: 'Markdown files', extensions: ['md', 'mdown'] },
-                  { name: 'Text file', extensions: ['txt'] },
-                  { name: 'All files', extensions: ['*'] },
-                ],
-                properties: ['openFile', 'createDirectory']
-              },
-              (fnames) => {
-                if (!fnames) return;
-
-                let focusedWindow;
-                if (!win) {
-                  focusedWindow = createWindow({ store });
-                } else {
-                  const editor = getEditor(win.uuid)(win.getState());
-                  if (editor.code) {
-                    focusedWindow = createWindow({ store });
-                  } else {
-                    focusedWindow = win;
-                  }
-                }
-
-                focusedWindow.dispatch(loadFile(
-                  focusedWindow.uuid,
-                  fnames[0]
-                ));
-              }
-            ];
-
-            dialog.showOpenDialog(...args);
+          click: (item, focusedWindow) => {
+            let mdWindow;
+            if (focusedWindow) {
+              mdWindow = focusedWindow.getClass();
+            }
+            Window.loadFile(mdWindow);
           }
         },
         {
           label: '&Save',
           accelerator: 'CmdOrCtrl+S',
-          click: (item, win) => {
-            if (win) {
-              onSaveFile(win);
-            }
-          }
+          click: (item, focusedWindow) =>
+            focusedWindow && focusedWindow.getClass().saveFile(),
         },
         {
           label: 'Save As...',
           accelerator: 'Shift+CmdOrCtrl+S',
-          click: (item, win) => {
-            if (win) {
-              onSaveFile(win, true);
-            }
-          }
+          click: (item, focusedWindow) =>
+            focusedWindow && focusedWindow.getClass().saveFile(true),
         },
         { type: 'separator' },
         {
           label: 'Export to PDF...',
-          accelerator: 'Shift+CmdOrCtrl+E'
+          accelerator: 'Shift+CmdOrCtrl+E',
+          click: (item, focusedWindow) =>
+            focusedWindow && focusedWindow.getClass().exportPdfDialog(),
         },
       ]
     },
@@ -159,33 +86,28 @@ export default function createMenu({
       submenu: (process.env.NODE_ENV === 'development') ? [{
         label: 'Reload',
         accelerator: 'CmdOrCtrl+R',
-        click() {
-          mainWindow.webContents.reload();
-        }
+        click: (_, focusedWindow) =>
+          focusedWindow && focusedWindow.webContents.reload(),
       }, {
         label: 'Toggle Full Screen',
         accelerator: 'Ctrl+CmdOrCtrl+F',
-        click() {
-          mainWindow.setFullScreen(!mainWindow.isFullScreen());
-        }
+        click: (_, focusedWindow) =>
+          focusedWindow && focusedWindow.setFullScreen(!focusedWindow.isFullScreen()),
       }, {
         label: 'Toggle Developer Tools',
         accelerator: 'Alt+CmdOrCtrl+I',
-        click() {
-          mainWindow.toggleDevTools();
-        }
+        click: (_, focusedWindow) =>
+          focusedWindow && focusedWindow.toggleDevTools(),
       }, {
         label: 'Toggle Markdown Tools',
         accelerator: 'Alt+CmdOrCtrl+Shift+I',
-        click() {
-          mainWindow.webContents.send('toggle-webview-devtools');
-        }
+        click: (_, focusedWindow) =>
+          focusedWindow && focusedWindow.webContents.send('toggle-webview-devtools'),
       }] : [{
         label: 'Toggle Full Screen',
         accelerator: 'Ctrl+CmdOrCtrl+F',
-        click() {
-          mainWindow.setFullScreen(!mainWindow.isFullScreen());
-        }
+        click: (_, focusedWindow) =>
+          focusedWindow.setFullScreen(!focusedWindow.isFullScreen()),
       }]
     },
   ];

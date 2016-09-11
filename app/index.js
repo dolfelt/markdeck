@@ -1,4 +1,4 @@
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer as ipc, remote } from 'electron';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
@@ -6,6 +6,7 @@ import { Router, hashHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import routes from './routes';
 import configureStore from './store/configureStore';
+
 import './styles/app.css';
 
 const initialState = remote.getGlobal('state');
@@ -13,14 +14,14 @@ const initialState = remote.getGlobal('state');
 const store = configureStore(initialState, 'renderer');
 const history = syncHistoryWithStore(hashHistory, store);
 
-ipcRenderer.on('redux-action', (event, payload) => {
+ipc.on('redux-action', (event, payload) => {
   store.dispatch(payload);
   if (global.webview) {
     global.webview.send('redux-action', payload);
   }
 });
 
-ipcRenderer.on('toggle-webview-devtools', () => {
+ipc.on('toggle-webview-devtools', () => {
   if (global.webview) {
     global.webview.openDevTools();
   }

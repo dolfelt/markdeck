@@ -1,5 +1,6 @@
 import { app, ipcMain } from 'electron';
-import createWindow from './createWindow';
+// import createWindow from './createWindow';
+import Window from './Window';
 import configureStore from '../store/configureStore';
 
 // we have to do this to ease remote-loading of the initial state :(
@@ -7,6 +8,8 @@ global.state = {};
 global.renderers = {};
 
 const store = configureStore(global.state, 'main');
+
+global.getStore = () => store;
 
 store.subscribe(async () => {
   global.state = store.getState();
@@ -33,9 +36,13 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
+app.on('before-quit', () => {
+  global.isQuitting = true;
+});
+
 function doCreateMainWindow() {
-  mainWindow = createWindow({ store });
-  mainWindow.on('closed', () => {
+  mainWindow = new Window({ store });
+  mainWindow.getWindow().on('closed', () => {
     mainWindow = null;
   });
 }

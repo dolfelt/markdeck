@@ -2,6 +2,7 @@ import {
   LOAD_FILE,
   SAVE_FILE,
   UPDATE_CODE,
+  WINDOW_CLOSED,
 } from '../store/actionTypes';
 
 export default function editor(state = {}, action) {
@@ -35,6 +36,11 @@ export default function editor(state = {}, action) {
           saved: true,
         }
       };
+    case WINDOW_CLOSED: {
+      const copy = { ...state };
+      delete copy[uuid];
+      return copy;
+    }
     default:
       return state;
   }
