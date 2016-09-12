@@ -2,6 +2,9 @@ import {
   UPDATE_CODE,
   LOAD_FILE,
   SAVE_FILE,
+  EDITOR_LOADING,
+  EXPORT_PDF,
+  EXPORT_PDF_COMPLETE,
 } from '../store/actionTypes';
 
 import { loadFromFile, saveToFile } from '../main/utils/file';
@@ -36,4 +39,33 @@ export function saveFile(uuid, file, data) {
         file,
       });
     });
+}
+
+export function exportPdf(uuid) {
+  return (dispatch) => Promise.all([
+    dispatch(isLoading(uuid, true)),
+    dispatch({
+      type: EXPORT_PDF,
+      uuid,
+    }),
+  ]);
+}
+
+export function exportPdfComplete(uuid, file) {
+  return (dispatch) => Promise.all([
+    dispatch(isLoading(uuid, false)),
+    dispatch({
+      type: EXPORT_PDF_COMPLETE,
+      uuid,
+      file,
+    }),
+  ]);
+}
+
+export function isLoading(uuid, status = true) {
+  return {
+    type: EDITOR_LOADING,
+    uuid,
+    status,
+  };
 }

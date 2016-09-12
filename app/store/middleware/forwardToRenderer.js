@@ -14,15 +14,15 @@ const forwardToRenderer = () => next => action => {
     view.send('redux-action', rendererAction);
   };
 
-  /* Object.keys(global.renderers).forEach((key) => {
-    sendEvent(global.renderers[key]);
-  }); */
-  const openWindows = BrowserWindow.getAllWindows();
-  openWindows.forEach(({ uuid, webContents }) => {
-    if (!rendererAction.uuid || uuid === rendererAction.uuid) {
-      sendEvent(webContents);
-    }
-  });
+  // Only send objects across IPC
+  if ((typeof action) === 'object') {
+    const openWindows = BrowserWindow.getAllWindows();
+    openWindows.forEach(({ uuid, webContents }) => {
+      if (!rendererAction.uuid || uuid === rendererAction.uuid) {
+        sendEvent(webContents);
+      }
+    });
+  }
 
   return next(action);
 };

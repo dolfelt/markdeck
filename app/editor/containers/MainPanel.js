@@ -1,28 +1,36 @@
-import React, { Component } from 'react';
+import { remote } from 'electron';
+import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import SplitPane from 'react-split-pane';
 
 import Editor from '../../editor/containers/Editor';
 import Pipe from '../Pipe';
 
+import { getEditor } from '../selectors';
+
+import loaderSvg from '../../../assets/loading.svg';
+
 class MainPanel extends Component {
-
-  constructor(props) {
-    super(props);
-
-    this.pipe = new Pipe();
+  static propTypes = {
+    pipe: PropTypes.object,
+    exporting: PropTypes.bool,
   }
 
   componentDidMount() {
     this.webview = this.div.childNodes[0];
     global.webview = this.webview;
 
-    this.pipe.connect(this.webview);
+    this.props.pipe.connect(this.webview);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.exporting !== this.props.exporting) {
+      document.body.classList.toggle('exporting-pdf', newProps.exporting);
+    }
   }
 
   componentWillUnmount() {
-    this.pipe.disconnect();
+    this.props.pipe.disconnect();
   }
 
   renderWebview() {
@@ -43,19 +51,39 @@ class MainPanel extends Component {
       />
     );
   }
+
+  renderLoading() {
+    return (
+      <div className="loading">
+        <div dangerouslySetInnerHTML={{ __html: loaderSvg }} />
+      </div>
+    );
+  }
+
   render() {
     return (
-      <SplitPane defaultSize="50%">
-        <Editor />
-        { this.renderWebview() }
-      </SplitPane>
+      <div>
+        <SplitPane defaultSize="50%">
+          <Editor />
+          { this.renderWebview() }
+        </SplitPane>
+        { this.props.exporting ? this.renderLoading() : null }
+      </div>
     );
   }
 }
 
+const uuid = remote.getCurrentWindow().uuid;
 export default connect(
-  (state) => ({
-    code: state.editor.code,
-  }),
-  dispatch => bindActionCreators({}, dispatch)
+  (state) => {
+    const editor = getEditor(uuid)(state);
+    return {
+      exporting: (editor.export || {}).loading || false,
+    };
+  },
+  dispatch => {
+    return {
+      pipe: new Pipe({ dispatch, uuid }),
+    };
+  }
 )(MainPanel);

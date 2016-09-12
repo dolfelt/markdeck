@@ -5,14 +5,21 @@ import postcssPartialImport from 'postcss-partial-import';
 
 export default {
   module: {
-    loaders: [{
-      test: /\.jsx?$/,
-      loaders: ['babel-loader'],
-      exclude: /node_modules/
-    }, {
-      test: /\.json$/,
-      loader: 'json-loader'
-    }]
+    loaders: [
+      {
+        test: /\.jsx?$/,
+        loaders: ['babel-loader'],
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader',
+      },
+      {
+        test: /\.svg$/,
+        loader: 'raw-loader',
+      }
+    ]
   },
   output: {
     path: path.join(__dirname, 'dist'),
