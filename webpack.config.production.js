@@ -60,7 +60,6 @@ const config = merge(baseConfig, {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
-      'process.appPath': JSON.stringify(__dirname),
     }),
     new webpack.optimize.UglifyJsPlugin({
       compressor: {

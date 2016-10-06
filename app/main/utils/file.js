@@ -31,16 +31,11 @@ export const saveToFile = (file, data) =>
     });
   });
 
-export const isPackaged = () => __dirname.toLowerCase().indexOf('resources/app') > 0;
-
 export const getAppPath = () => {
-  if (isPackaged()) {
+  if (process.env.NODE_ENV === 'production') {
     return `${process.resourcesPath}/app`;
   }
-  const dir = process.appPath || process.cwd();
-  if (process.env.NODE_ENV === 'production') {
-    return `${dir}/dist`;
-  }
+  const dir = `${__dirname}/../../..`;
   return dir;
 };
 
@@ -48,6 +43,5 @@ export default {
   exists,
   loadFromFile,
   saveToFile,
-  isPackaged,
   getAppPath,
 };
