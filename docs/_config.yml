@@ -7,16 +7,16 @@ faviconType: image/png
 repository: https://github.com/dolfelt/markdeck/
 
 build:
-  version: 0.1.0
+  version: 0.1.1
   url:
     windows:
-      x86: https://github.com/dolfelt/markdeck/releases/download/0.1.0/0.1.0-Markdeck-win32-ia32.zip
-      x64: https://github.com/dolfelt/markdeck/releases/download/0.1.0/0.1.0-Markdeck-win32-x64.zip
+      x86: https://github.com/dolfelt/markdeck/releases/download/v0.1.1/0.1.1-Markdeck-win32-ia32.zip
+      x64: https://github.com/dolfelt/markdeck/releases/download/v0.1.1/0.1.1-Markdeck-win32-x64.zip
     macosx:
-      x64: https://github.com/dolfelt/markdeck/releases/download/0.1.0/0.1.0-Markdeck-mac.zip
+      x64: https://github.com/dolfelt/markdeck/releases/download/v0.1.1/0.1.1-Markdeck-macos.zip
     linux:
-      x86: https://github.com/dolfelt/markdeck/releases/download/0.1.0/0.1.0-Markdeck-linux-ia32.tar.gz
-      x64: https://github.com/dolfelt/markdeck/releases/download/0.1.0/0.1.0-Markdeck-linux-x64.tar.gz
+      x86: https://github.com/dolfelt/markdeck/releases/download/v0.1.1/0.1.1-Markdeck-linux-ia32.tar.gz
+      x64: https://github.com/dolfelt/markdeck/releases/download/v0.1.1/0.1.1-Markdeck-linux-x64.tar.gz
 
 exclude:
   - release/
