@@ -6,6 +6,9 @@ import {
   EDITOR_LOADING,
   EXPORT_PDF,
   EXPORT_PDF_COMPLETE,
+  PRESENTATION_MODE,
+  SET_CURRENT_PAGE,
+  SET_TOTAL_PAGES,
 } from '../store/actionTypes';
 
 const saveUuidState = (state, uuid) => (data) => ({
@@ -48,6 +51,18 @@ export default function editor(state = {}, action) {
           loading: false,
           file: action.file,
         }
+      });
+    case PRESENTATION_MODE:
+      return save({
+        presenting: action.presenting,
+      });
+    case SET_CURRENT_PAGE:
+      return save({
+        currentPage: action.page,
+      });
+    case SET_TOTAL_PAGES:
+      return save({
+        totalPages: action.pages,
       });
     case WINDOW_CLOSED: {
       const copy = { ...state };

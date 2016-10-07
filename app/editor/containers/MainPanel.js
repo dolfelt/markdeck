@@ -1,11 +1,16 @@
 import { remote } from 'electron';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import SplitPane from 'react-split-pane';
 
 import Editor from '../../editor/containers/Editor';
 import Pipe from '../Pipe';
 
+// Actions
+import { setCurrentPage, presentationMode } from '../actions';
+
+// Selectors
 import { getEditor } from '../selectors';
 
 import loaderSvg from '../../../assets/loading.svg';
@@ -14,13 +19,15 @@ class MainPanel extends Component {
   static propTypes = {
     pipe: PropTypes.object,
     exporting: PropTypes.bool,
+    presenting: PropTypes.bool,
+    currentPage: PropTypes.number,
+    totalPages: PropTypes.number,
+    presentationMode: PropTypes.func,
+    setCurrentPage: PropTypes.func,
   }
 
   componentDidMount() {
-    this.webview = this.div.childNodes[0];
-    global.webview = this.webview;
-
-    this.props.pipe.connect(this.webview);
+    document.addEventListener('keydown', this.keyPress);
   }
 
   componentWillReceiveProps(newProps) {
@@ -31,6 +38,30 @@ class MainPanel extends Component {
 
   componentWillUnmount() {
     this.props.pipe.disconnect();
+    document.removeEventListener('keydown', this.keyPress);
+  }
+
+  keyPress = (event) => {
+    if (!this.props.presenting) {
+      return;
+    }
+    const code = event.keyCode;
+    if (code === 27) {
+      this.props.presentationMode(false);
+    } else if (code === 37 || code === 39) {
+      const diff = code === 37 ? -1 : 1;
+      const page = Math.max(1, Math.min(this.props.totalPages, this.props.currentPage + diff));
+      this.props.setCurrentPage(page);
+    }
+  }
+
+  handleWebview = (div) => {
+    if (div) {
+      this.webview = div.childNodes[0];
+      global.webview = this.webview;
+
+      this.props.pipe.connect(this.webview);
+    }
   }
 
   renderWebview() {
@@ -45,7 +76,7 @@ class MainPanel extends Component {
 
     return (
       <div
-        ref={d => (this.div = d)}
+        ref={this.handleWebview}
         style={{ height: '100%' }}
         dangerouslySetInnerHTML={{ __html: webview }}
       />
@@ -60,13 +91,25 @@ class MainPanel extends Component {
     );
   }
 
+  renderPanels() {
+    const presenting = this.props.presenting ? {
+      pane1Style: { display: 'none' },
+      resizerStyle: { display: 'none' },
+      allowResize: false,
+    } : {};
+
+    return (
+      <SplitPane defaultSize="50%" {...presenting}>
+        { !this.props.presenting ? <Editor /> : null }
+        { this.renderWebview() }
+      </SplitPane>
+    );
+  }
+
   render() {
     return (
-      <div>
-        <SplitPane defaultSize="50%">
-          <Editor />
-          { this.renderWebview() }
-        </SplitPane>
+      <div style={{ height: '100vh' }}>
+        { this.renderPanels() }
         { this.props.exporting ? this.renderLoading() : null }
       </div>
     );
@@ -79,11 +122,16 @@ export default connect(
     const editor = getEditor(uuid)(state);
     return {
       exporting: (editor.export || {}).loading || false,
+      presenting: editor.presenting || false,
+      currentPage: editor.currentPage || 1,
+      totalPages: editor.totalPages || 1,
     };
   },
-  dispatch => {
-    return {
-      pipe: new Pipe({ dispatch, uuid }),
-    };
-  }
+  (dispatch) => ({
+    pipe: new Pipe({ dispatch, uuid }),
+    ...bindActionCreators({
+      setCurrentPage: setCurrentPage.bind(null, uuid),
+      presentationMode: presentationMode.bind(null, uuid),
+    }, dispatch)
+  })
 )(MainPanel);

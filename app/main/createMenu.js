@@ -44,6 +44,12 @@ export default function createMenu({
         },
         { type: 'separator' },
         {
+          label: 'Presentation Mode',
+          accelerator: 'CmdOrCtrl+P',
+          click: (item, focusedWindow) =>
+            focusedWindow && focusedWindow.getClass().presentationMode(),
+        },
+        {
           label: 'Export to PDF...',
           accelerator: 'Shift+CmdOrCtrl+E',
           click: (item, focusedWindow) =>

@@ -61,6 +61,10 @@ export default class Markdown {
     return this.settings;
   }
 
+  getPages() {
+    return this.rulers.length + 1;
+  }
+
   render(code) {
     this.rulers = [];
     return this.postRender([

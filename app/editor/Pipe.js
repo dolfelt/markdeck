@@ -2,7 +2,7 @@ import { ipcRenderer as ipc } from 'electron';
 import { saveToFile } from '../main/utils/file';
 
 // Actions
-import { exportPdf, exportPdfComplete } from './actions';
+import { exportPdf, exportPdfComplete, setTotalPages } from './actions';
 
 export default class Pipe {
   constructor({ dispatch, uuid }) {
@@ -14,6 +14,7 @@ export default class Pipe {
     return {
       publishPdf: this.publishPdf,
       responsePdfOptions: this.responsePdfOptions,
+      totalPages: this.totalPages,
     };
   }
 
@@ -41,6 +42,9 @@ export default class Pipe {
     setTimeout(startPublish, 1000);
   }
 
+  totalPages = (event, pages) => {
+    this.dispatch(setTotalPages(this.uuid, pages));
+  }
 
   // Connect and disconnect helpers
 
@@ -58,6 +62,6 @@ export default class Pipe {
   }
 
   disconnect() {
-    // TODO
+    this.webview.removeEventListener('ipc-message');
   }
 }

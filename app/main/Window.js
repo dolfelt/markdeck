@@ -1,11 +1,11 @@
 import { BrowserWindow, Menu, dialog, app, ipcRenderer as ipc } from 'electron';
 import path from 'path';
 
-import { getAppPath, saveToFile } from './utils/file';
+import { getAppPath } from './utils/file';
 import guid from './utils/guid';
 import createMenu from './createMenu';
 
-import { loadFile, saveFile } from '../editor/actions';
+import { loadFile, saveFile, presentationMode } from '../editor/actions';
 import { windowClosed } from './actions';
 
 import { getEditor } from '../editor/selectors';
@@ -194,6 +194,29 @@ export default class Window {
     ));
   }
 
+  exportPdfDialog = () => {
+    dialog.showSaveDialog(
+      this.window,
+      {
+        title: 'Export to PDF...',
+        filters: [{ name: 'PDF file', extensions: ['pdf'] }],
+      },
+      (filename) => {
+        if (!filename) return;
+        // @freeze = true
+        this.send('publishPdf', { filename });
+      }
+    );
+  }
+
+  presentationMode = () => {
+    const editor = this.getEditorState();
+    this.dispatch(presentationMode(
+      this.uuid,
+      !editor.presenting
+    ));
+  }
+
   static loadFile(currentWindow) {
     const onOpen = (fnames) => {
       if (!fnames) return;
@@ -225,20 +248,5 @@ export default class Window {
       onOpen
     );
   }
-
-  exportPdfDialog = () => {
-    dialog.showSaveDialog(
-      this.window,
-      {
-        title: 'Export to PDF...',
-        filters: [{ name: 'PDF file', extensions: ['pdf'] }],
-      },
-      (filename) => {
-        if (!filename) return;
-        // @freeze = true
-        this.send('publishPdf', { filename });
-      }
-    );
-  };
 
 }
