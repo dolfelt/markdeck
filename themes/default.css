@@ -1,8 +1,7 @@
-/* Gaia - Marp slide theme.
- * Copyright (C) 2016 Yuki Hattori.
+/* Default - Markdeck slide theme.
+ * Copyright (C) 2016 Daniel Olfelt.
  *
- * Gaia was inspired by AZUSA Keynote templates (by @sanographix).
- * https://github.com/sanographix/azusa-keynote
+ * Based on Gaia, originally by Yuki Hattori.
  */
 
 @import "./base/markdown";
@@ -184,7 +183,7 @@ $highlight-color: #0288d1;
     &[data-template~="invert"] {
       @mixin color-template $text-color, $bg-color, #4fc3f7;
     }
-    &[data-template~="gaia"] {
+    &[data-template~="title"] {
       @mixin color-template $highlight-color, $bg-color, #81d4fa;
     }
   }

@@ -68,10 +68,19 @@ class Editor extends Component {
     return path.resolve('themes');
   }
 
+  workingDir() {
+    if (!this.props.workingFile) {
+      return null;
+    }
+    return path.dirname(this.props.workingFile);
+  }
+
   renderMarkdown() {
-    this.markdown = new Markdown();
-    const settings = this.markdown.getSettings();
+    this.markdown = new Markdown({
+      workingDir: this.workingDir(),
+    });
     const render = this.markdown.render(this.props.code || '');
+    const settings = this.markdown.getSettings();
 
     this.applySlideSize(settings.getGlobal('width'), settings.getGlobal('height'));
 

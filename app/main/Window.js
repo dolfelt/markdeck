@@ -57,7 +57,7 @@ export default class Window {
         {
           type: 'question',
           buttons: ['Yes', 'No', 'Cancel'],
-          title: 'Marp',
+          title: 'Markdeck',
           message: 'Are you sure?',
           detail: `${filename} has been modified. Do you want to save the changes?`
         },

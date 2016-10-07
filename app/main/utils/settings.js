@@ -89,11 +89,7 @@ const transformers = {
   page_number: generalTransfomer.bool,
   width: generalTransfomer.unit,
   height: generalTransfomer.unit,
-  theme: (v) => {
-    const basename = path.basename(v);
-    // return if basename in ['default', 'gaia'] then "css/themes/#{basename}.css" else null;
-    return basename;
-  },
+  theme: (v) => path.basename(v),
   template: (v) => v,
   footer: (v) => v,
   prerender: generalTransfomer.bool,

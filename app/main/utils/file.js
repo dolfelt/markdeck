@@ -35,8 +35,7 @@ export const getAppPath = () => {
   if (process.env.NODE_ENV === 'production') {
     return `${process.resourcesPath}/app`;
   }
-  const dir = `${__dirname}/../../..`;
-  return dir;
+  return process.env.PWD;
 };
 
 export default {

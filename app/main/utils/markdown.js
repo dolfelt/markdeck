@@ -1,11 +1,10 @@
 import markdownIt from 'markdown-it';
 import HighlightJs from 'highlight.js';
+import path from 'path';
 
 import markdownItMark from 'markdown-it-mark';
 import markdownItEmoji from 'markdown-it-emoji';
 import markdownItKatex from 'markdown-it-katex';
-
-import { exists } from './file';
 
 import Settings from './settings';
 
@@ -42,7 +41,7 @@ const slideTagClose = (page) =>
 
 
 export default class Markdown {
-  constructor() {
+  constructor({ workingDir } = {}) {
     this.settings = new Settings();
 
     this.rulers = [];
@@ -55,7 +54,7 @@ export default class Markdown {
         markdownItKatex,
       ]
     );
-    this.setupMarkdownRules(this.markdown);
+    this.setupMarkdownRules(this.markdown, { workingDir });
   }
 
   getSettings() {
@@ -77,7 +76,7 @@ export default class Markdown {
     return markdown;
   }
 
-  setupMarkdownRules(markdown) {
+  setupMarkdownRules(markdown, { workingDir } = {}) {
     const { rules } = markdown.renderer;
 
     const defaultRenderers = {
@@ -98,7 +97,7 @@ export default class Markdown {
           ].join('');
         },
         image: (...args) => {
-          this.renderers.image.apply(this, args);
+          this.renderers.image.apply(this, [workingDir, ...args]);
           return defaultRenderers.image.apply(this, args);
         },
         html_block: (...args) => {
@@ -110,11 +109,12 @@ export default class Markdown {
   }
 
   renderers = {
-    image: (tokens, idx) => {
+    image: (imageDir, tokens, idx) => {
       const tok = tokens;
-      const src = decodeURIComponent(tokens[idx].attrs[tokens[idx].attrIndex('src')][1]);
-      if (exists(src)) {
-        tok[idx].attrs[tokens[idx].attrIndex('src')][1] = src;
+      const srcIdx = tokens[idx].attrIndex('src');
+      const src = decodeURIComponent(tokens[idx].attrs[srcIdx][1]);
+      if (imageDir && src.match(/^https?:/) === null) {
+        tok[idx].attrs[srcIdx][1] = path.join(imageDir, src);
       }
     },
     html_block: (tokens, idx) => {
