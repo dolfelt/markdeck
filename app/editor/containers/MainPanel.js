@@ -8,7 +8,7 @@ import Editor from '../../editor/containers/Editor';
 import Pipe from '../Pipe';
 
 // Actions
-import { setCurrentPage, presentationMode } from '../actions';
+import { setCurrentPage, presentationMode, setViewMode } from '../actions';
 
 // Selectors
 import { getEditor } from '../selectors';
@@ -22,8 +22,10 @@ class MainPanel extends Component {
     presenting: PropTypes.bool,
     currentPage: PropTypes.number,
     totalPages: PropTypes.number,
+    viewMode: PropTypes.string,
     presentationMode: PropTypes.func,
     setCurrentPage: PropTypes.func,
+    setViewMode: PropTypes.func,
   }
 
   componentDidMount() {
@@ -98,18 +100,60 @@ class MainPanel extends Component {
       allowResize: false,
     } : {};
 
+    const style = {
+      position: 'static',
+    };
+
     return (
-      <SplitPane defaultSize="50%" {...presenting}>
-        { !this.props.presenting ? <Editor /> : null }
+      <SplitPane defaultSize="50%" {...presenting} style={style}>
+        <Editor />
         { this.renderWebview() }
       </SplitPane>
     );
   }
 
+  renderToolbar() {
+    if (this.props.presenting) {
+      return null;
+    }
+
+    const modes = [
+      {
+        icon: 'icon-monitor',
+        key: 'screen',
+      },
+      {
+        icon: 'icon-doc-text',
+        key: 'list',
+      }
+    ].map(({ icon, key }) => {
+      const active = key === this.props.viewMode ? ' active' : '';
+      return (
+        <button className={`btn btn-default${active}`} onClick={() => this.props.setViewMode(key)}>
+          <span className={`icon ${icon}`} />
+        </button>
+      );
+    });
+
+    return (
+      <footer className="toolbar toolbar-footer">
+        <div className="toolbar-actions">
+          <button className="btn btn-default" onClick={() => this.props.presentationMode(true)}>
+            <span className="icon icon-play" /> Present
+          </button>
+          <div className="btn-group pull-right">
+            { modes }
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   render() {
     return (
-      <div style={{ height: '100vh' }}>
+      <div className="window-app-box">
         { this.renderPanels() }
+        { this.renderToolbar() }
         { this.props.exporting ? this.renderLoading() : null }
       </div>
     );
@@ -123,6 +167,7 @@ export default connect(
     return {
       exporting: (editor.export || {}).loading || false,
       presenting: editor.presenting || false,
+      viewMode: editor.viewMode || 'screen',
       currentPage: editor.currentPage || 1,
       totalPages: editor.totalPages || 1,
     };
@@ -132,6 +177,7 @@ export default connect(
     ...bindActionCreators({
       setCurrentPage: setCurrentPage.bind(null, uuid),
       presentationMode: presentationMode.bind(null, uuid),
+      setViewMode: setViewMode.bind(null, uuid),
     }, dispatch)
   })
 )(MainPanel);

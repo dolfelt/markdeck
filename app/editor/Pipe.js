@@ -14,7 +14,7 @@ export default class Pipe {
     return {
       publishPdf: this.publishPdf,
       responsePdfOptions: this.responsePdfOptions,
-      totalPages: this.totalPages,
+      pageData: this.pageData,
     };
   }
 
@@ -42,8 +42,9 @@ export default class Pipe {
     setTimeout(startPublish, 1000);
   }
 
-  totalPages = (event, pages) => {
-    this.dispatch(setTotalPages(this.uuid, pages));
+  pageData = (event, rulers) => {
+    const pages = rulers.length + 1;
+    this.dispatch(setTotalPages(this.uuid, pages, rulers));
   }
 
   // Connect and disconnect helpers

@@ -24,6 +24,7 @@ class Viewer extends Component {
     addSetting: PropTypes.func,
     presenting: PropTypes.bool,
     currentPage: PropTypes.number,
+    viewMode: PropTypes.string,
   }
 
   constructor(props) {
@@ -47,6 +48,9 @@ class Viewer extends Component {
     if (this.props.presenting !== nextProps.presenting) {
       this.setPresenting(nextProps.presenting);
     }
+    if (this.props.viewMode !== nextProps.viewMode) {
+      this.setViewMode(nextProps.viewMode);
+    }
   }
 
   componentWillUnmount() {
@@ -54,10 +58,14 @@ class Viewer extends Component {
     this.setPresenting(false);
   }
 
-  setPresenting = (presenting) => {
-    const mode = presenting ? 'screen' : 'list';
+  setViewMode = (mode) => {
     document.body.classList.toggle('list', mode === 'list');
     document.body.classList.toggle('screen', mode === 'screen');
+  }
+
+  setPresenting = (presenting) => {
+    const mode = presenting ? 'screen' : this.props.viewMode;
+    this.setViewMode(mode);
 
     if (presenting) {
       setStyle('presentationMode', `body {
@@ -127,7 +135,7 @@ class Viewer extends Component {
     const render = this.markdown.render(this.props.code || '');
     const settings = this.markdown.getSettings();
 
-    ipc.sendToHost('totalPages', this.markdown.getPages());
+    ipc.sendToHost('pageData', this.markdown.getRulers());
 
     this.applySlideSize(settings.getGlobal('width'), settings.getGlobal('height'));
 
@@ -169,6 +177,7 @@ export default connect(
       code: editor.code || '',
       workingFile: editor.file,
       presenting: editor.presenting,
+      viewMode: editor.viewMode || 'screen',
       currentPage: editor.currentPage || 1,
     };
   },

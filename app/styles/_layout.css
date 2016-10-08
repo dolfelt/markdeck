@@ -14,6 +14,21 @@
   }
 }
 
+.window-app-box {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  height: 100vh;
+
+  .toolbar-footer {
+
+  }
+}
+
+.SplitPane.vertical {
+  position: static !important;
+}
+
 .Resizer {
   background: #000;
   opacity: .2;

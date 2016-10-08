@@ -9,6 +9,7 @@ import {
   PRESENTATION_MODE,
   SET_CURRENT_PAGE,
   SET_TOTAL_PAGES,
+  VIEW_MODE,
 } from '../store/actionTypes';
 
 const saveUuidState = (state, uuid) => (data) => ({
@@ -63,6 +64,11 @@ export default function editor(state = {}, action) {
     case SET_TOTAL_PAGES:
       return save({
         totalPages: action.pages,
+        pageRulers: action.rulers,
+      });
+    case VIEW_MODE:
+      return save({
+        viewMode: action.mode,
       });
     case WINDOW_CLOSED: {
       const copy = { ...state };
