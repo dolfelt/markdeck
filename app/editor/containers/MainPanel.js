@@ -66,6 +66,25 @@ class MainPanel extends Component {
     }
   }
 
+  toolbarMenu() {
+    const { Menu, MenuItem } = remote;
+
+    const menu = new Menu();
+    menu.append(new MenuItem({
+      label: 'Continue Presentation',
+      click: () => {
+        this.props.presentationMode(true);
+      }
+    }));
+
+    menu.popup(remote.getCurrentWindow());
+  }
+
+  beginPresentation() {
+    this.props.setCurrentPage(1);
+    this.props.presentationMode(true);
+  }
+
   renderWebview() {
     const webview = (`<webview
         id="viewer"
@@ -138,9 +157,17 @@ class MainPanel extends Component {
     return (
       <footer className="toolbar toolbar-footer">
         <div className="toolbar-actions">
-          <button className="btn btn-default" onClick={() => this.props.presentationMode(true)}>
-            <span className="icon icon-play" /> Present
-          </button>
+          <div className="btn-group">
+            <button className="btn btn-default" onClick={() => this.beginPresentation()}>
+              <span className="icon icon-play icon-text" /> Present
+            </button>
+            <button
+              className="btn btn-default btn-drop-segment"
+              onClick={() => this.toolbarMenu()}
+            >
+              <span className="icon icon-down-open" />
+            </button>
+          </div>
           <div className="btn-group pull-right">
             { modes }
           </div>

@@ -122,6 +122,11 @@
   margin-right: 5px;
 }
 
+.btn-drop-segment {
+  padding-left: 1px;
+  padding-right: 2px;
+}
+
 /* This utility class add a down arrow icon to the button */
 .btn-dropdown:after {
   font-family: "photon-entypo";
