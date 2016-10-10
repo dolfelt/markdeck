@@ -1,6 +1,15 @@
 #!/bin/sh
 
-: "${VERSION:?Need to set VERSION}"
+PACKAGE_VERSION=$(cat package.json \
+  | grep version \
+  | head -1 \
+  | awk -F: '{ print $2 }' \
+  | sed 's/[",]//g' \
+  | tr -d '[[:space:]]')
+
+VERSION="${VERSION:-$PACKAGE_VERSION}"
+
+echo "Packaging version $VERSION"
 
 RELEASE_PATH="$(pwd)/release"
 IMAGE_PATH="$(pwd)/release/images"

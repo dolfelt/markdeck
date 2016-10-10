@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 // Actions
-import { updateCode } from '../actions';
+import { updateCode, setCurrentPage } from '../actions';
 
 // Selectors
 import { getEditor } from '../selectors';
@@ -22,7 +22,10 @@ class Editor extends Component {
     code: PropTypes.string,
     file: PropTypes.string,
     saved: PropTypes.bool,
+    presenting: PropTypes.bool,
+    rulers: PropTypes.array,
     updateCode: PropTypes.func,
+    setCurrentPage: PropTypes.func,
   }
 
   constructor(props) {
@@ -33,6 +36,13 @@ class Editor extends Component {
     this.state = {
       code: this.props.code,
     };
+  }
+
+  componentDidMount() {
+    this.codeMirror.on(
+      'cursorActivity',
+      () => setTimeout(this.refreshPage, 5)
+    );
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,9 +68,24 @@ class Editor extends Component {
     this.props.updateCode(UUID, code);
   }
 
+  refreshPage = () => {
+    if (this.props.presenting || !this.codeMirror) {
+      return;
+    }
+
+    const lineNumber = this.codeMirror.getCursor().line || 0;
+    const line = this.props.rulers.filter((ln) => ln <= lineNumber);
+    const page = line.length + 1;
+
+    this.props.setCurrentPage(UUID, page);
+
+    // TODO: Update page indicator `Page ${currentPage} / ${totalPages}`
+  }
+
   render() {
     return (
       <Codemirror
+        ref={(code) => code && (this.codeMirror = code.getCodeMirror())}
         value={this.state.code}
         onChange={this.onCodeChange}
         options={{
@@ -85,9 +110,12 @@ export default connect(
       file: editor.file,
       code: editor.code,
       saved: editor.saved,
+      rulers: editor.pageRulers,
+      presenting: editor.presenting,
     };
   },
   dispatch => bindActionCreators({
     updateCode,
+    setCurrentPage,
   }, dispatch)
 )(Editor);

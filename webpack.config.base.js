@@ -18,6 +18,10 @@ export default {
       {
         test: /\.svg$/,
         loader: 'raw-loader',
+      },
+      {
+        test: /\.(eot|ttf|woff|woff2)$/,
+        loader: 'file-loader?publicPath=./&name=fonts/[name].[ext]',
       }
     ]
   },

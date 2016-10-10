@@ -5,6 +5,10 @@ import {
   EDITOR_LOADING,
   EXPORT_PDF,
   EXPORT_PDF_COMPLETE,
+  PRESENTATION_MODE,
+  SET_CURRENT_PAGE,
+  SET_TOTAL_PAGES,
+  VIEW_MODE,
 } from '../store/actionTypes';
 
 import { loadFromFile, saveToFile } from '../main/utils/file';
@@ -49,6 +53,39 @@ export function exportPdf(uuid) {
       uuid,
     }),
   ]);
+}
+
+export function presentationMode(uuid, presenting) {
+  return {
+    type: PRESENTATION_MODE,
+    uuid,
+    presenting,
+  };
+}
+
+export function setCurrentPage(uuid, page) {
+  return {
+    type: SET_CURRENT_PAGE,
+    uuid,
+    page,
+  };
+}
+
+export function setTotalPages(uuid, pages, rulers = []) {
+  return {
+    type: SET_TOTAL_PAGES,
+    uuid,
+    pages,
+    rulers,
+  };
+}
+
+export function setViewMode(uuid, mode) {
+  return {
+    type: VIEW_MODE,
+    uuid,
+    mode,
+  };
 }
 
 export function exportPdfComplete(uuid, file) {

@@ -8,6 +8,11 @@ export const EXPORT_PDF = 'EXPORT_PDF';
 export const EXPORT_PDF_COMPLETE = 'EXPORT_PDF_COMPLETE';
 export const EXPORT_PDF_FAILED = 'EXPORT_PDF_FAILED';
 
+export const PRESENTATION_MODE = 'PRESENTATION_MODE';
+export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
+export const SET_TOTAL_PAGES = 'SET_TOTAL_PAGES';
+export const VIEW_MODE = 'VIEW_MODE';
+
 export const WILL_QUIT = 'WILL_QUIT';
 export const QUIT_CANCELLED = 'QUIT_CANCELLED';
 

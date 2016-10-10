@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { remote } from 'electron';
+import { remote, ipcRenderer as ipc } from 'electron';
 import path from 'path';
 
 import { connect } from 'react-redux';
@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux';
 import Markdown from '../../main/utils/markdown';
 
 // Utilities
-import { setStyle, getScreenSize } from '../utils';
+import { setStyle, getScreenSize, getSlideSize } from '../utils';
 import { renderTheme } from '../theme';
 
 // Selectors
@@ -16,12 +16,15 @@ import { getEditor } from '../../editor/selectors';
 
 const UUID = remote.getCurrentWindow().uuid;
 
-class Editor extends Component {
+class Viewer extends Component {
   static propTypes = {
     code: PropTypes.string,
     workingFile: PropTypes.string,
     clearSettings: PropTypes.func,
     addSetting: PropTypes.func,
+    presenting: PropTypes.bool,
+    currentPage: PropTypes.number,
+    viewMode: PropTypes.string,
   }
 
   constructor(props) {
@@ -32,12 +35,46 @@ class Editor extends Component {
   }
 
   componentDidMount() {
-    this.applyScreenSize();
+    this.setPresenting(this.props.presenting);
+    setTimeout(() => this.applyScreenSize(), 1000);
     window.addEventListener('resize', this.handleResize);
+    this.applyCurrentPage(this.props.currentPage);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.currentPage !== nextProps.currentPage) {
+      this.applyCurrentPage(nextProps.currentPage);
+    }
+    if (this.props.presenting !== nextProps.presenting) {
+      this.setPresenting(nextProps.presenting);
+    }
+    if (this.props.viewMode !== nextProps.viewMode) {
+      this.setViewMode(nextProps.viewMode);
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
+    this.setPresenting(false);
+  }
+
+  setViewMode = (mode) => {
+    document.body.classList.toggle('list', mode === 'list');
+    document.body.classList.toggle('screen', mode === 'screen');
+  }
+
+  setPresenting = (presenting) => {
+    const mode = presenting ? 'screen' : this.props.viewMode;
+    this.setViewMode(mode);
+
+    if (presenting) {
+      setStyle('presentationMode', `body {
+        --preview-margin: 0;
+      }`);
+      this.applyCurrentPage(this.props.currentPage);
+    } else {
+      setStyle('presentationMode', '');
+    }
   }
 
   handleResize = () => {
@@ -50,7 +87,23 @@ class Editor extends Component {
       --screen-width: ${size.w};
       --screen-height: ${size.h};
     }`);
-    // $('#container').toggleClass 'height-base', size.ratio > getSlideSize().ratio
+    const container = document.getElementById('container');
+    if (container) {
+      container.classList.toggle('height-base', size.ratio > getSlideSize().ratio);
+    }
+  }
+
+  applyCurrentPage(page) {
+    setStyle('currentPage', `
+      @media not print {
+        body.slide-view.screen .slide_wrapper:not(:nth-of-type(${page})) {
+          width: 0 !important;
+          height: 0 !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+      }`
+    );
   }
 
   applySlideSize(width, height) {
@@ -81,6 +134,8 @@ class Editor extends Component {
     });
     const render = this.markdown.render(this.props.code || '');
     const settings = this.markdown.getSettings();
+
+    ipc.sendToHost('pageData', this.markdown.getRulers());
 
     this.applySlideSize(settings.getGlobal('width'), settings.getGlobal('height'));
 
@@ -121,7 +176,10 @@ export default connect(
     return {
       code: editor.code || '',
       workingFile: editor.file,
+      presenting: editor.presenting,
+      viewMode: editor.viewMode || 'screen',
+      currentPage: editor.currentPage || 1,
     };
   },
   dispatch => bindActionCreators({}, dispatch)
-)(Editor);
+)(Viewer);

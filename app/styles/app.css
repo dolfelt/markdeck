@@ -7,5 +7,6 @@ body {
   overflow-y: hidden;
 }
 
-@import 'layout';
-@import 'editor';
+@import "ui/photon.css";
+@import "layout";
+@import "editor";

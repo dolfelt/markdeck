@@ -61,6 +61,10 @@ export default class Markdown {
     return this.settings;
   }
 
+  getRulers() {
+    return this.rulers;
+  }
+
   render(code) {
     this.rulers = [];
     return this.postRender([
