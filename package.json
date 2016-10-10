@@ -1,7 +1,7 @@
 {
   "name": "markdeck",
   "productName": "Markdeck",
-  "version": "0.1.1",
+  "version": "0.2.0-rc.1",
   "description": "Presentation software based on React, Markdown, PostCSS for rapid presentation development",
   "main": "main.js",
   "scripts": {
